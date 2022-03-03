@@ -12,14 +12,13 @@ const carritoIcono = document.getElementById("carritoIcono")
 
 
 
-/*PLANTILLA DE FIGURA*/
+/*CONSTRUCTOR DE FIGURA*/
 class Figura{
-    constructor(nombre, precio, stock){
+    constructor(nombre, precio){
         this.nombre = nombre.toUpperCase();
         this.precio = parseFloat(precio);
         this.image = `./images/${nombre.toLowerCase()}.jpg`
         this.id
-        this.stock = parseInt(stock)
         this.cantidad = 0
     }
 }
@@ -27,18 +26,17 @@ class Figura{
 /*INVENTARIO*/
 const figuras = [
 
-new Figura("Bob esponja", 3000, 5),
-new Figura("Puro hueso", 8000, 39), 
-new Figura("Chowder", 2000, 27), 
-new Figura("Alien X", 2700, 101),
-new Figura("Ben 10", 10000, 36),
-new Figura("Cristiano Ronaldo", 6340, 74),
-new Figura("Meiya", 50000, 51),
-new Figura("Umongosaurio", 4000, 27),
-new Figura("Messi", 9000, 89),
+new Figura("Bob esponja", 3000),
+new Figura("Puro hueso", 8000), 
+new Figura("Chowder", 2000), 
+new Figura("Alien X", 2700),
+new Figura("Ben 10", 10000),
+new Figura("Cristiano Ronaldo", 6340),
+new Figura("Meiya", 50000),
+new Figura("Umongosaurio", 4000),
+new Figura("Messi", 9000),
 
 ];
-
 
 
 
@@ -61,43 +59,47 @@ function mostrarFiguras(){
 
 /*CARRITO*/
 
-comprar.addEventListener("click", () => {
-carritoProductos.innerHTML = `<li class="list-group-item">¡Muchas gracias!</li>`
-carrito = []
-localStorage.clear()
-for(Figura of figuras){
-    Figura.cantidad = 0
+
+/*CLICKEAR EL BOTON DE COMPRAR*/
+function comprarCarrito(){
+    carritoProductos.innerHTML = `<li class="list-group-item">¡Muchas gracias!</li>`
+    carrito = []
+    localStorage.clear()
+    for(Figura of figuras){
+        Figura.cantidad = 0
+    }
 }
-comprar.style.display = "none"
-vaciar.style.display = "none"})
-
-vaciar.addEventListener("click", () => {
-carritoProductos.innerHTML = ""
-carrito = []
-localStorage.clear()
-actualizarCarrito()
-for(Figura of figuras){
-    Figura.cantidad = 0
-}})
-
-cerrar.addEventListener("click", () => 
-productosCard.style.display = "none")
-
-carritoIcono.addEventListener("click", () => { 
-productosCard.style.display = "block"
-comprar.style.display = "inline-block"
-vaciar.style.display = "inline-block"
+comprar.addEventListener("click", () => {
+    carrito.length === 0 ? carritoProductos.innerHTML = `<li class="list-group-item">Debe seleccionar al menos un producto para comprar.</li>`:comprarCarrito();
 })
 
-function actualizarCarrito(){
-    let total = 0
-    for(Figura of carrito){
-        carritoProductos.innerHTML += `<li class="list-group-item">x${Figura.cantidad} ${Figura.nombre} - ${Figura.cantidad * Figura.precio}$</li>`
-        total += Figura.cantidad * Figura.precio
+/*CLICKEAR EL BOTON DE VACIAR*/
+vaciar.addEventListener("click", () => {
+    carrito.length === 0 ? carritoProductos.innerHTML = `<li class="list-group-item">¡El carrito ya estaba vacio!</li>`:vaciarCarrito();
+})
+
+function vaciarCarrito(){
+    carritoProductos.innerHTML = ""
+    carrito = []
+    localStorage.clear()
+    actualizarCarrito()
+    for(Figura of figuras){
+        Figura.cantidad = 0
     }
-    carritoProductos.innerHTML += `<li class="list-group-item">Total: ${total}$</li>`
 }
 
+/*CLICKEAR EL BOTON DE CERRAR*/
+cerrar.addEventListener("click", () => productosCard.style.display = "none")
+
+/*CLICKEAR EL ICONO DEL CARRITO*/
+carritoIcono.addEventListener("click", () => { 
+    productosCard.style.display = "block"
+    comprar.style.display = "inline-block"
+    vaciar.style.display = "inline-block"
+})
+
+
+/*BOTON DE AÑADIR AL CARRITO*/
 function anadirAlCarrito(id){
     for(Figura of figuras){
         if(Figura.id === id){
@@ -114,6 +116,19 @@ function anadirAlCarrito(id){
     localStorage.setItem("Figura", JSON.stringify(carrito))
     actualizarCarrito()
 }
+
+/*ACTUALIZAR CARRITO DESPUES DE AÑADIR ALGUN ITEM*/
+
+function actualizarCarrito(){
+    let total = 0
+    for(Figura of carrito){
+        carritoProductos.innerHTML += `<li class="list-group-item">x${Figura.cantidad} ${Figura.nombre} - ${Figura.cantidad * Figura.precio}$</li>`
+        total += Figura.cantidad * Figura.precio
+    }
+    carritoProductos.innerHTML += `<li class="list-group-item">Total: ${total}$</li>`
+}
+
+/*SI EL CARRITO DEL STORAGE ES UN ARRAY, CARRITO GUARDA LOS DATOS DEL STORAGE*/
 
 function renderCarrito(){
     if (Array.isArray(carritoLS)){
