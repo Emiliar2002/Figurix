@@ -1,6 +1,5 @@
 /*DEFINIR VARIABLES*/
 const flexContainer = document.getElementById("flexContainer")
-const totalHtml = document.getElementById("total")
 let carrito = []
 let carritoLS = JSON.parse(localStorage.getItem("Figura"))
 const comprar = document.getElementById("comprar")
@@ -8,6 +7,8 @@ const vaciar = document.getElementById("vaciar")
 const cerrar = document.getElementById("cerrar")
 const productosCard = document.getElementById("productosCard")
 const carritoIcono = document.getElementById("carritoIcono")
+let carritoAbierto = false
+var notyf = new Notyf();
 
 
 
@@ -50,7 +51,7 @@ function mostrarFiguras(){
         <div class="card-body">
           <h5 class="card-title">${Figura.nombre}</h5>
           <p class="card-text">${Figura.precio}$</p>
-          <a href="#" class="btn btn-primary" onclick="anadirAlCarrito(${id})">Añadir al carrito</a>
+          <a class="btn btn-primary" onclick="anadirAlCarrito(${id})">Añadir al carrito</a>
         </div>
       </div></div>`
       id++
@@ -62,20 +63,24 @@ function mostrarFiguras(){
 
 /*CLICKEAR EL BOTON DE COMPRAR*/
 function comprarCarrito(){
-    carritoProductos.innerHTML = `<li class="list-group-item">¡Muchas gracias!</li>`
+    carritoProductos.innerHTML = ""
+    notyf.success('¡Muchas gracias por su compra!');
     carrito = []
     localStorage.clear()
     for(Figura of figuras){
         Figura.cantidad = 0
     }
+    actualizarCarrito()
+    abrirOCerrarCarrito()
 }
+
 comprar.addEventListener("click", () => {
-    carrito.length === 0 ? carritoProductos.innerHTML = `<li class="list-group-item">Debe seleccionar al menos un producto para comprar.</li>`:comprarCarrito();
+    carrito.length === 0 ? notyf.error('Debe seleccionar al menos un producto para proceder con la compra.'):comprarCarrito();
 })
 
 /*CLICKEAR EL BOTON DE VACIAR*/
 vaciar.addEventListener("click", () => {
-    carrito.length === 0 ? carritoProductos.innerHTML = `<li class="list-group-item">¡El carrito ya estaba vacio!</li>`:vaciarCarrito();
+    carrito.length === 0 ? notyf.error('¡El carrito ya estaba vacio!'):vaciarCarrito();
 })
 
 function vaciarCarrito(){
@@ -86,17 +91,30 @@ function vaciarCarrito(){
     for(Figura of figuras){
         Figura.cantidad = 0
     }
+    notyf.success('El carrito fue limpiado correctamente.');
+}
+
+function abrirOCerrarCarrito(){
+    if (carritoAbierto === false){
+        productosCard.style.display = "block"
+        comprar.style.display = "inline-block"
+        vaciar.style.display = "inline-block"
+        carritoAbierto = true
+    }
+    else{
+        productosCard.style.display = "none"
+        comprar.style.display = "none"
+        vaciar.style.display = "none"
+        carritoAbierto = false
+    }
 }
 
 /*CLICKEAR EL BOTON DE CERRAR*/
-cerrar.addEventListener("click", () => productosCard.style.display = "none")
+
+cerrar.addEventListener("click", () => abrirOCerrarCarrito())
 
 /*CLICKEAR EL ICONO DEL CARRITO*/
-carritoIcono.addEventListener("click", () => { 
-    productosCard.style.display = "block"
-    comprar.style.display = "inline-block"
-    vaciar.style.display = "inline-block"
-})
+carritoIcono.addEventListener("click", () => abrirOCerrarCarrito())
 
 
 /*BOTON DE AÑADIR AL CARRITO*/
@@ -111,6 +129,7 @@ function anadirAlCarrito(id){
                 carrito.push(Figura);
             }
             carritoProductos.innerHTML = "";
+            notyf.success(`Figura de ${Figura.nombre} añadida al carrito.`);
         }
     }
     localStorage.setItem("Figura", JSON.stringify(carrito))
@@ -133,6 +152,7 @@ function actualizarCarrito(){
 function renderCarrito(){
     if (Array.isArray(carritoLS)){
         carrito = carritoLS
+        notyf.success('Su compra sin procesar fue cargada en el carrito exitosamente.');
     }
 }
 
