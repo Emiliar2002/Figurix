@@ -1,6 +1,7 @@
 /*DEFINIR VARIABLES*/
 const flexContainer = document.getElementById("flexContainer")
 let carrito = []
+let figuras = []
 let carritoLS = JSON.parse(localStorage.getItem("Figura"))
 const comprar = document.getElementById("comprar")
 const vaciar = document.getElementById("vaciar")
@@ -11,52 +12,26 @@ let carritoAbierto = false
 var notyf = new Notyf();
 
 
-
-
-/*CONSTRUCTOR DE FIGURA*/
-class Figura{
-    constructor(nombre, precio){
-        this.nombre = nombre.toUpperCase();
-        this.precio = parseFloat(precio);
-        this.image = `./images/${nombre.toLowerCase()}.jpg`
-        this.id
-        this.cantidad = 0
-    }
+//TOMAR LOS PRODUCTOS DE UN .json
+function mostrarProductos(){
+    fetch('./productos.json')
+    .then(res => res.json())
+    //MOSTRAR PRODUCTOS
+    .then (productos => {
+        productos.forEach((producto) => {
+            flexContainer.innerHTML += `<div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/${producto.imagen}.jpg" alt="Card image cap">
+            <div class="card-body">
+            <h5 class="card-title">${producto.nombre}</h5>
+            <p class="card-text">${producto.precio}$</p>
+            <a class="btn btn-dark" onclick="anadirAlCarrito(${producto.id})">Añadir al carrito</a>
+            </div>
+        </div></div>`
+        figuras.push(producto)
+        })
+    })
 }
 
-/*INVENTARIO*/
-const figuras = [
-
-new Figura("Bob esponja", 3000),
-new Figura("Puro hueso", 8000), 
-new Figura("Chowder", 2000), 
-new Figura("Alien X", 2700),
-new Figura("Ben 10", 10000),
-new Figura("Cristiano Ronaldo", 6340),
-new Figura("Meiya", 50000),
-new Figura("Umongosaurio", 4000),
-new Figura("Messi", 9000),
-
-];
-
-
-
-/*MOSTRAR FIGURAS*/
-function mostrarFiguras(){
-    let id = 0
-    for(Figura of figuras){
-        Figura.id = id
-        flexContainer.innerHTML += `<div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="${Figura.image}" alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title">${Figura.nombre}</h5>
-          <p class="card-text">${Figura.precio}$</p>
-          <a class="btn btn-primary" onclick="anadirAlCarrito(${id})">Añadir al carrito</a>
-        </div>
-      </div></div>`
-      id++
-    }
-}
 
 /*CARRITO*/
 
@@ -67,7 +42,7 @@ function comprarCarrito(){
     notyf.success('¡Muchas gracias por su compra!');
     carrito = []
     localStorage.clear()
-    for(Figura of figuras){
+    for(Figura of carrito){
         Figura.cantidad = 0
     }
     actualizarCarrito()
@@ -82,6 +57,7 @@ comprar.addEventListener("click", () => {
 vaciar.addEventListener("click", () => {
     carrito.length === 0 ? notyf.error('¡El carrito ya estaba vacio!'):vaciarCarrito();
 })
+
 
 function vaciarCarrito(){
     carritoProductos.innerHTML = ""
@@ -158,6 +134,6 @@ function renderCarrito(){
 
 
 /*EJECUTAR CODIGO*/
-mostrarFiguras()
+mostrarProductos()
 renderCarrito()
 actualizarCarrito()
